@@ -31,6 +31,10 @@ public:
 	std::vector< TaskHandle >::const_iterator begin() const;
 	std::vector< TaskHandle >::const_iterator end() const;
 
+	// Support for normal for loops.
+	TaskHandle& operator[]( unsigned index );
+	const TaskHandle& operator[]( unsigned index ) const;
+
 protected:
 	std::vector< TaskHandle > m_taskBatch;
 };
@@ -94,6 +98,18 @@ inline std::vector< TaskHandle >::const_iterator TaskBatch::begin() const
 inline std::vector< TaskHandle >::const_iterator TaskBatch::end() const
 {
 	return m_taskBatch.end();
+}
+
+////////////////////////////////////////////////////////////
+inline TaskHandle& TaskBatch::operator[]( unsigned index )
+{
+	return m_taskBatch[ index ];
+}
+
+////////////////////////////////////////////////////////////
+inline const TaskHandle& TaskBatch::operator[]( unsigned index ) const
+{
+	return m_taskBatch[ index ];
 }
 
 ////////////////////////////////////////////////////////////
