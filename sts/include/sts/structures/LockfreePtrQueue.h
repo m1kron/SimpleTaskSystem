@@ -64,7 +64,7 @@ inline bool LockFreePtrQueue<T, SIZE>::Push( T* const item )
 
 	// Try to reserve slot, if m_WriteCounter != write_counter, it means that other 
 	// thread was faster than our and we have to retry whole operation.
-	} while( !m_writeCounter.CompareExchange( write_counter, write_counter + 1 ) );
+	} while( !m_writeCounter.CompareExchange( write_counter, write_counter + 1, MemoryOrder::Acquire ) );
 
 	// Add stuff to the queue
 	m_queue[ CounterToIndex( write_counter ) ] = item;
@@ -74,7 +74,7 @@ inline bool LockFreePtrQueue<T, SIZE>::Push( T* const item )
 	// order as they were writing data to the queue - to gain that, every thread has to set committedWriteCounter
 	// to be + 1 of write counter that given thread got.
 	unsigned expected = write_counter;
-	while( !m_committedWriteCounter.CompareExchange( expected, write_counter + 1 ) )
+	while( !m_committedWriteCounter.CompareExchange( expected, write_counter + 1, MemoryOrder::Release ) )
 	{
 		ASSERT( expected <= write_counter );///< Actually fatal assert..
 		// Remember that in case of failture of CompareExchange, expected value will contain current
@@ -121,7 +121,7 @@ inline T* LockFreePtrQueue<T, SIZE>::Pop()
 
 	// Try to increase read counter. If failed, it means that another thread has already read it,
 	// so we have to retry whole operation.
-	} while( !m_readCounter.CompareExchange( current_read_counter, current_read_counter + 1 ) );
+	} while( !m_readCounter.CompareExchange( current_read_counter, current_read_counter + 1, MemoryOrder::Release ) );
 
 	// [NOTE]: we can't nullptr queue item here, cuz it would require another synchronization between threads
 	// ( other thread can be pushing new data right now at the same place if the queue is almost full ).

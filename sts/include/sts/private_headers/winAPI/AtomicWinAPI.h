@@ -30,7 +30,7 @@ public:
 
 	LONG Load( MemoryOrder order = MemoryOrder::SeqCst ) const;
 	void Store( LONG value, MemoryOrder order = MemoryOrder::SeqCst );
-	bool CompareExchange( LONG& expected_val, LONG value_to_set );
+	bool CompareExchange( LONG& expected_val, LONG value_to_set, MemoryOrder order = MemoryOrder::SeqCst );
 	LONG FetchAdd( LONG value ); 
 	LONG FetchSub( LONG value );
 	LONG Increment();
@@ -75,7 +75,7 @@ inline void Atomic32Impl::Store( LONG value, MemoryOrder order )
 }
 
 //////////////////////////////////////////////////
-inline bool Atomic32Impl::CompareExchange( LONG& expected_val, LONG value_to_set )
+inline bool Atomic32Impl::CompareExchange( LONG& expected_val, LONG value_to_set, MemoryOrder order )
 {
 	LONG prev_val = expected_val;
 	expected_val = InterlockedCompareExchange( &m_value, value_to_set, expected_val );

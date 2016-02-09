@@ -41,7 +41,7 @@ public:
 	void SetTaskFunction( TFunctionPtr function );
 
 	// Returns raw task data pointer.
-	char* GetRawDataPtr();
+	void* GetRawDataPtr();
 
 	// Clears task.
 	void Clear();
@@ -66,13 +66,13 @@ private:
 ////////////////////////////////////////////////////////
 inline bool Task::IsFinished() const
 {
-	return m_numberOfChildTasks.Load( MemoryOrder::Relaxed ) == 0;
+	return m_numberOfChildTasks.Load( MemoryOrder::Acquire ) == 0;
 }
 
 ////////////////////////////////////////////////////////
 inline bool Task::IsReadyToBeExecuted() const
 {
-	return m_numberOfChildTasks.Load( MemoryOrder::Relaxed ) == 1;
+	return m_numberOfChildTasks.Load( MemoryOrder::Acquire ) == 1;
 }
 
 ////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ inline void Task::AddParent( const TaskHandle& parentTask )
 }
 
 ////////////////////////////////////////////////////////
-inline char* Task::GetRawDataPtr()
+inline void* Task::GetRawDataPtr()
 {
 	return m_data;
 }

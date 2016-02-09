@@ -22,7 +22,7 @@ TaskHandle TaskAllocator::AllocateNewTask()
 	{
 		unsigned expected = 0;
 		unsigned index = ( num + i ) & ( TASK_POOL_SIZE - 1 ); // fast modulo
-		if( m_poolMarkers[ index ].CompareExchange( expected, 1 ) ) // TODO : use here aquire semantics
+		if( m_poolMarkers[ index ].CompareExchange( expected, 1 ), MemoryOrder::Acquire )
 		{
 			// We have available task:
 			return TaskHandle( &m_taskPool[ index ] );

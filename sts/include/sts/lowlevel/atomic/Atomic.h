@@ -18,7 +18,7 @@ public:
 
 	// CAS operation. Returns true if exchange succeded. If false, expected_val will contain current
 	// value of atomic ( WILL BE CHANGED ).
-	bool CompareExchange( T& expected_val, T value_to_set );
+	bool CompareExchange( T& expected_val, T value_to_set, MemoryOrder order = MemoryOrder::SeqCst );
 
 	// Adds value to contained value. Returns RESULT of the operation.
 	T FetchAdd( T value );
@@ -82,9 +82,9 @@ template < class T, class AtomicImpl > inline void AtomicBase< T, AtomicImpl >::
 }
 
 //////////////////////////////////////////////////
-template < class T, class AtomicImpl > inline bool AtomicBase< T, AtomicImpl >::CompareExchange( T& expected_val, T value_to_set )
+template < class T, class AtomicImpl > inline bool AtomicBase< T, AtomicImpl >::CompareExchange( T& expected_val, T value_to_set, MemoryOrder order )
 {
-	return AtomicImpl::CompareExchange( ( AtomicImpl::TAtomicType& ) expected_val, ( AtomicImpl::TAtomicType ) value_to_set );
+	return AtomicImpl::CompareExchange( ( AtomicImpl::TAtomicType& ) expected_val, ( AtomicImpl::TAtomicType ) value_to_set, order );
 }
 
 //////////////////////////////////////////////////
