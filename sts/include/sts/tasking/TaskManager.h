@@ -31,7 +31,7 @@ public:
 	TaskHandle CreateNewTask( Task::TFunctionPtr task_function, const TaskHandle& parent_task_handle = INVALID_TASK_HANDLE );
 
 	// Creates new functor task.
-	template< typename TFunctor > TaskHandle CreateNewFunctorTask( const TFunctor& functor, const TaskHandle& parent_task_handle = INVALID_TASK_HANDLE );
+	template< typename TFunctor > TaskHandle CreateNewTask( const TFunctor& functor, const TaskHandle& parent_task_handle = INVALID_TASK_HANDLE );
 
 	// Submits and dispatches task to workers. Returns false in case of fail.
 	bool SubmitTask( const TaskHandle& task_handle );
@@ -60,7 +60,7 @@ private:
 
 	TaskWorkersPool     m_workerThreadsPool;
 	TaskAllocator       m_taskAllocator;
-	Atomic< unsigned >  m_taskDispacherCounter;
+	Atomic< unsigned >  m_taskDispacherCounter; ///< [NOTE]: does it have to be atomic?
 };
 
 ///////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ inline unsigned TaskManager::GetWorkersCount() const
 
 ///////////////////////////////////////////////////////////////
 template< typename TFunctor > 
-inline TaskHandle TaskManager::CreateNewFunctorTask( const TFunctor& functor, const TaskHandle& parent_task_handle )
+inline TaskHandle TaskManager::CreateNewTask( const TFunctor& functor, const TaskHandle& parent_task_handle )
 {
 	TaskHandle new_task_handle = CreateNewTaskImpl( parent_task_handle );
 
