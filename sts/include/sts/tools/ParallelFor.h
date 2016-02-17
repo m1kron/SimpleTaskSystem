@@ -94,9 +94,11 @@ void ParallelForEachUsingTasks( const Iterator& begin, const Iterator& end, cons
 
 	sts::TaskBatch_AutoRelease batch( task_manager );
 	
+	// WARNING!
 	// This is needed only in debug mode, cuz in debug stl iterators are so big,
 	// that task's internal storage cannot hold them..
-DBG_ONLY_LINE( std::vector< Container::iterator > iterators; )
+DBG_ONLY_LINE( std::vector< Iterator > iterators; )
+DBG_ONLY_LINE( iterators.reserve( 2 * ( max_num_of_threads - 1 ) ); )
 
 	// Setup tasks.
 	for( unsigned i = 0; i < max_num_of_threads - 1; ++i )
@@ -107,18 +109,30 @@ DBG_ONLY_LINE( std::vector< Container::iterator > iterators; )
 		Iterator end_it = start_it;
 		std::advance( end_it, batch_size );
 
-DBG_ONLY_LINE( iterators.push_back( start_it ); )
-DBG_ONLY_LINE( iterators.push_back( end_it ); )
-
 		last_it = end_it;
 
-		auto func = [ &functor, &start_it, &end_it ]( TaskContext& )
+DBG_ONLY_LINE( iterators.push_back( start_it ); )
+DBG_ONLY_LINE( iterators.push_back( end_it ); )
+DBG_ONLY_LINE( Iterator& dbg_start_it = iterators[ iterators.size() - 2 ]; )
+DBG_ONLY_LINE( Iterator& dbg_end_it = iterators[ iterators.size() - 1 ]; )
+
+#ifdef DEBUG_MODE
+		// Debug version:
+		auto func = [ &functor, &dbg_start_it, &dbg_end_it ]( TaskContext& )
+		{
+			for( Iterator it = dbg_start_it; it != dbg_end_it; ++it )
+				functor( it );
+		};
+#else
+		// Release version:
+		auto func = [ &functor, start_it, end_it ]( TaskContext& )
 		{
 			for( auto it = start_it; it != end_it; ++it )
 				functor( it );
 		};
+#endif
 
-		sts::TaskHandle handle = task_manager.CreateNewFunctorTask( func );
+		sts::TaskHandle handle = task_manager.CreateNewTask( func );
 		ASSERT( handle != sts::INVALID_TASK_HANDLE );
 		batch.Add( std::move( handle ) );
 	}
