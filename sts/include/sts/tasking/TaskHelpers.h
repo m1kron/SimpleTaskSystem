@@ -45,7 +45,7 @@ template< typename TFunctor >
 void FunctorTaskMaker( TaskHandle& task_handle, const TFunctor& funtor )
 {
 	auto bla = sizeof( TFunctor );
-	STATIC_ASSERT( sizeof( TFunctor ) <= Task::DATA_SIZE, "Unfortunately, functor is too big to be hold in task data segment( max size: %i )." );
+	STATIC_ASSERT( sizeof( TFunctor ) <= Task::DATA_SIZE, "Unfortunately, functor is too big to be hold in task data segment." );
 
 	task_handle->SetTaskFunction( &FunctorTaskFunction< TFunctor > );
 
